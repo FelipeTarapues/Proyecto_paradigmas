@@ -44,14 +44,14 @@ cargar_datos_prueba :-
 
 % Correr todas las pruebas
 ejecutar_pruebas :-
-    nl, write('=== PRUEBAS DEL SISTEMA ==='), nl, nl,
+    nl, write('=== PRUEBAS ==='), nl, nl,
     
-    % prueba diagnostico basico
+    % prueba diagnostico
     write('1. diagnostico([fiebre, tos], E):'), nl,
     findall(E, diagnostico([fiebre, tos], E), R1),
     list_to_set(R1, R1u), write('   '), write(R1u), nl, nl,
     
-    % prueba filtro por categoria
+    % prueba diagnostico_categoria
     write('2. diagnostico_categoria([cansancio], cronica, E):'), nl,
     findall(E, diagnostico_categoria([cansancio], cronica, E), R2),
     list_to_set(R2, R2u), write('   '), write(R2u), nl, nl,
@@ -60,24 +60,19 @@ ejecutar_pruebas :-
     write('3. recomendacion(gripe, R):'), nl,
     recomendacion(gripe, R3), write('   '), write(R3), nl, nl,
     
-    % prueba enfermedades cronicas
+    % prueba enfermedades_cronicas
     write('4. enfermedades_cronicas(L):'), nl,
     enfermedades_cronicas(R4), write('   '), write(R4), nl, nl,
     
-    % prueba enfermedades por sintoma
+    % prueba enfermedades_por_sintoma
     write('5. enfermedades_por_sintoma(fiebre, L):'), nl,
     enfermedades_por_sintoma(fiebre, R5), write('   '), write(R5), nl, nl,
     
-    % prueba diagnostico ordenado
-    write('6. diagnostico_ordenado([fiebre, tos, cansancio], L):'), nl,
-    diagnostico_ordenado([fiebre, tos, cansancio], R6),
-    mostrar_diagnosticos(R6),
+    % prueba coincide_sintomas
+    write('6. coincide_sintomas([fiebre, tos], [fiebre, tos, dolor_cabeza]):'), nl,
+    (coincide_sintomas([fiebre, tos], [fiebre, tos, dolor_cabeza]) 
+        -> write('   true') ; write('   false')), nl, nl,
     
-    nl, write('=== PRUEBAS OK ==='), nl.
-
-mostrar_diagnosticos([]).
-mostrar_diagnosticos([(Cant, Enf, Cat, _)|Resto]) :-
-    format('   ~w (~w): ~w coincidencias~n', [Enf, Cat, Cant]),
-    mostrar_diagnosticos(Resto).
+    write('=== OK ==='), nl.
 
 % Para ejecutar: cargar_datos_prueba, ejecutar_pruebas.

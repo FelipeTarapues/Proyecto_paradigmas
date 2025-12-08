@@ -35,42 +35,6 @@ enfermedades_cronicas(Lista) :-
 enfermedades_por_sintoma(Sint, Lista) :-
     findall(E, (enfermedad(E, _, Sints, _), member(Sint, Sints)), Lista).
 
-% Reglas auxiliares para la GUI
-
-% obtener info completa de un diagnostico
-diagnostico_info(SintomasUsr, Enf, Cat, Rec) :-
-    enfermedad(Enf, Cat, SintomasEnf, Rec),
-    member(S, SintomasUsr),
-    member(S, SintomasEnf).
-
-% contar cuantos sintomas coinciden
-contar_coincidencias(SintomasUsr, Enf, Cant) :-
-    enfermedad(Enf, _, SintomasEnf, _),
-    findall(S, (member(S, SintomasUsr), member(S, SintomasEnf)), Coinciden),
-    length(Coinciden, Cant).
-
-% diagnosticos ordenados por relevancia (mas coincidencias primero)
-diagnostico_ordenado(SintomasUsr, ListaOrdenada) :-
-    findall((Cant, Enf, Cat, Rec),
-        (enfermedad(Enf, Cat, SintomasEnf, Rec),
-         findall(S, (member(S, SintomasUsr), member(S, SintomasEnf)), Coinc),
-         length(Coinc, Cant),
-         Cant > 0),
-        ListaSinOrden),
-    sort(0, @>=, ListaSinOrden, ListaOrdenada).
-
-% listar todas las enfermedades
-todas_enfermedades(Lista) :-
-    findall(E, enfermedad(E, _, _, _), Lista).
-
-% listar todos los sintomas
-todos_sintomas(Lista) :-
-    findall(S, sintoma(S), Lista).
-
-% enfermedades de una categoria
-enfermedades_categoria(Cat, Lista) :-
-    findall(E, enfermedad(E, Cat, _, _), Lista).
-
 % Predicados para carga dinamica (usados por Java)
 
 limpiar_hechos :-
