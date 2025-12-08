@@ -1,137 +1,88 @@
+% Motor de inferencia - Sistema experto medico
+% Los hechos se cargan dinamicamente desde Java (MySQL)
 
-:- dynamic enfermedad/4.
-% enfermedad(Nombre, Categoria, Sintomas, Recomendacion).
-% Ejemplo: enfermedad(gripe, viral, [fiebre, tos, dolor_cabeza, dolor_muscular], 'Descansar e hidratarse').
+:- dynamic enfermedad/4.   % enfermedad(Nombre, Categoria, ListaSintomas, Recomendacion)
+:- dynamic sintoma/1.      % sintoma(Nombre)
+:- dynamic paciente/2.     % paciente(Nombre, Edad)
 
-:- dynamic sintoma/1.
-% sintoma(Nombre).
-% Ejemplo: sintoma(fiebre).
-
-:- dynamic paciente/2.
-% paciente(Nombre, Edad).
-% Ejemplo: paciente('Juan Perez', 25).
-
-% --------------------------------------------
-% REGLAS ESTÁTICAS
-% --------------------------------------------
-
-% 1. coincide_sintomas(SintomasUsuario, SintomasEnfermedad)
-%    Verdadero si TODOS los síntomas del usuario están en la lista de síntomas de la enfermedad
+% coincide_sintomas: verifica si todos los sintomas del usuario estan en la enfermedad
 coincide_sintomas([], _).
-coincide_sintomas([Sintoma|Resto], SintomasEnfermedad) :-
-    member(Sintoma, SintomasEnfermedad),
-    coincide_sintomas(Resto, SintomasEnfermedad).
+coincide_sintomas([S|Resto], SintomasEnf) :-
+    member(S, SintomasEnf),
+    coincide_sintomas(Resto, SintomasEnf).
 
-% 2. diagnostico(SintomasUsuario, Enfermedad)
-%    Devuelve una enfermedad que coincide con AL MENOS UN síntoma
-diagnostico(SintomasUsuario, Enfermedad) :-
-    enfermedad(Enfermedad, _, SintomasEnfermedad, _),
-    member(Sintoma, SintomasUsuario),
-    member(Sintoma, SintomasEnfermedad).
+% diagnostico: devuelve enfermedad que coincide con al menos un sintoma
+diagnostico(SintomasUsr, Enf) :-
+    enfermedad(Enf, _, SintomasEnf, _),
+    member(S, SintomasUsr),
+    member(S, SintomasEnf).
 
-% 3. diagnostico_completo(SintomasUsuario, Enfermedad, Categoria, Recomendacion)
-%    Devuelve enfermedad con toda su información si coincide al menos un síntoma
-diagnostico_completo(SintomasUsuario, Enfermedad, Categoria, Recomendacion) :-
-    enfermedad(Enfermedad, Categoria, SintomasEnfermedad, Recomendacion),
-    member(Sintoma, SintomasUsuario),
-    member(Sintoma, SintomasEnfermedad).
+% diagnostico_categoria: filtra por categoria
+diagnostico_categoria(SintomasUsr, Cat, Enf) :-
+    enfermedad(Enf, Cat, SintomasEnf, _),
+    member(S, SintomasUsr),
+    member(S, SintomasEnf).
 
-% 4. diagnostico_categoria(SintomasUsuario, Categoria, Enfermedad)
-%    Devuelve enfermedades de una categoría específica que coinciden con los síntomas
-diagnostico_categoria(SintomasUsuario, Categoria, Enfermedad) :-
-    enfermedad(Enfermedad, Categoria, SintomasEnfermedad, _),
-    member(Sintoma, SintomasUsuario),
-    member(Sintoma, SintomasEnfermedad).
+% recomendacion: obtiene la recomendacion de una enfermedad
+recomendacion(Enf, Rec) :-
+    enfermedad(Enf, _, _, Rec).
 
-% 5. recomendacion(Enfermedad, Recomendacion)
-%    Devuelve la recomendación asociada a una enfermedad
-recomendacion(Enfermedad, Recomendacion) :-
-    enfermedad(Enfermedad, _, _, Recomendacion).
+% enfermedades_cronicas: lista todas las enfermedades cronicas
+enfermedades_cronicas(Lista) :-
+    findall(E, enfermedad(E, cronica, _, _), Lista).
 
-% 6. enfermedades_cronicas(ListaEnfermedades)
-%    Devuelve la lista de todas las enfermedades crónicas
-enfermedades_cronicas(ListaEnfermedades) :-
-    findall(Enfermedad, enfermedad(Enfermedad, cronica, _, _), ListaEnfermedades).
+% enfermedades_por_sintoma: enfermedades que tienen cierto sintoma
+enfermedades_por_sintoma(Sint, Lista) :-
+    findall(E, (enfermedad(E, _, Sints, _), member(Sint, Sints)), Lista).
 
-% 7. enfermedades_por_sintoma(Sintoma, ListaEnfermedades)
-%    Devuelve todas las enfermedades que presentan un síntoma específico
-enfermedades_por_sintoma(Sintoma, ListaEnfermedades) :-
-    findall(Enfermedad, 
-            (enfermedad(Enfermedad, _, Sintomas, _), member(Sintoma, Sintomas)), 
-            ListaEnfermedades).
+% Reglas auxiliares para la GUI
 
-% 8. enfermedades_por_categoria(Categoria, ListaEnfermedades)
-%    Devuelve todas las enfermedades de una categoría específica
-enfermedades_por_categoria(Categoria, ListaEnfermedades) :-
-    findall(Enfermedad, enfermedad(Enfermedad, Categoria, _, _), ListaEnfermedades).
+% obtener info completa de un diagnostico
+diagnostico_info(SintomasUsr, Enf, Cat, Rec) :-
+    enfermedad(Enf, Cat, SintomasEnf, Rec),
+    member(S, SintomasUsr),
+    member(S, SintomasEnf).
 
-% 9. obtener_sintomas_enfermedad(Enfermedad, Sintomas)
-%    Obtiene la lista de síntomas de una enfermedad
-obtener_sintomas_enfermedad(Enfermedad, Sintomas) :-
-    enfermedad(Enfermedad, _, Sintomas, _).
+% contar cuantos sintomas coinciden
+contar_coincidencias(SintomasUsr, Enf, Cant) :-
+    enfermedad(Enf, _, SintomasEnf, _),
+    findall(S, (member(S, SintomasUsr), member(S, SintomasEnf)), Coinciden),
+    length(Coinciden, Cant).
 
-% 10. obtener_categoria(Enfermedad, Categoria)
-%     Obtiene la categoría de una enfermedad
-obtener_categoria(Enfermedad, Categoria) :-
-    enfermedad(Enfermedad, Categoria, _, _).
+% diagnosticos ordenados por relevancia (mas coincidencias primero)
+diagnostico_ordenado(SintomasUsr, ListaOrdenada) :-
+    findall((Cant, Enf, Cat, Rec),
+        (enfermedad(Enf, Cat, SintomasEnf, Rec),
+         findall(S, (member(S, SintomasUsr), member(S, SintomasEnf)), Coinc),
+         length(Coinc, Cant),
+         Cant > 0),
+        ListaSinOrden),
+    sort(0, @>=, ListaSinOrden, ListaOrdenada).
 
-% 11. contar_coincidencias(SintomasUsuario, Enfermedad, Cantidad)
-%     Cuenta cuántos síntomas del usuario coinciden con una enfermedad
-contar_coincidencias(SintomasUsuario, Enfermedad, Cantidad) :-
-    enfermedad(Enfermedad, _, SintomasEnfermedad, _),
-    findall(S, (member(S, SintomasUsuario), member(S, SintomasEnfermedad)), Coincidencias),
-    length(Coincidencias, Cantidad).
+% listar todas las enfermedades
+todas_enfermedades(Lista) :-
+    findall(E, enfermedad(E, _, _, _), Lista).
 
-% 12. diagnostico_ordenado(SintomasUsuario, ListaDiagnosticos)
-%     Devuelve diagnósticos ordenados por cantidad de síntomas coincidentes
-diagnostico_ordenado(SintomasUsuario, ListaDiagnosticos) :-
-    findall(
-        (Cantidad, Enfermedad, Categoria, Recomendacion),
-        (
-            enfermedad(Enfermedad, Categoria, SintomasEnfermedad, Recomendacion),
-            findall(S, (member(S, SintomasUsuario), member(S, SintomasEnfermedad)), Coincidencias),
-            length(Coincidencias, Cantidad),
-            Cantidad > 0
-        ),
-        ListaSinOrdenar
-    ),
-    sort(0, @>=, ListaSinOrdenar, ListaDiagnosticos).
+% listar todos los sintomas
+todos_sintomas(Lista) :-
+    findall(S, sintoma(S), Lista).
 
-% 13. todas_las_enfermedades(Lista)
-%     Obtiene lista de todas las enfermedades registradas
-todas_las_enfermedades(Lista) :-
-    findall(Enfermedad, enfermedad(Enfermedad, _, _, _), Lista).
+% enfermedades de una categoria
+enfermedades_categoria(Cat, Lista) :-
+    findall(E, enfermedad(E, Cat, _, _), Lista).
 
-% 14. todos_los_sintomas(Lista)
-%     Obtiene lista de todos los síntomas registrados
-todos_los_sintomas(Lista) :-
-    findall(Sintoma, sintoma(Sintoma), Lista).
+% Predicados para carga dinamica (usados por Java)
 
-% 15. todas_las_categorias(Lista)
-%     Obtiene lista de categorías únicas
-todas_las_categorias(Lista) :-
-    findall(Categoria, enfermedad(_, Categoria, _, _), TodasCategorias),
-    list_to_set(TodasCategorias, Lista).
-
-% --------------------------------------------
-% CARGA DINÁMICA
-% --------------------------------------------
-
-% Limpiar todos los hechos dinámicos
-limpiar_base_conocimiento :-
+limpiar_hechos :-
     retractall(enfermedad(_, _, _, _)),
     retractall(sintoma(_)),
     retractall(paciente(_, _)).
 
-% Agregar una enfermedad (Java)
-agregar_enfermedad(Nombre, Categoria, Sintomas, Recomendacion) :-
-    assertz(enfermedad(Nombre, Categoria, Sintomas, Recomendacion)).
+agregar_enfermedad(Nom, Cat, Sints, Rec) :-
+    assertz(enfermedad(Nom, Cat, Sints, Rec)).
 
-% Agregar un síntoma (Java)
-agregar_sintoma(Nombre) :-
-    assertz(sintoma(Nombre)).
+agregar_sintoma(Nom) :-
+    assertz(sintoma(Nom)).
 
-% Agregar un paciente
-agregar_paciente(Nombre, Edad) :-
-    assertz(paciente(Nombre, Edad)).
-
+agregar_paciente(Nom, Edad) :-
+    assertz(paciente(Nom, Edad)).

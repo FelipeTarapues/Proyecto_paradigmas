@@ -1,181 +1,65 @@
--- ============================================
--- SISTEMA EXPERTO DE DIAGNÓSTICO MÉDICO
--- Script de inserción de datos iniciales
--- ============================================
+-- Datos iniciales del sistema experto
 
 USE sistema_experto_medico;
 
--- ============================================
--- INSERTAR CATEGORÍAS
--- ============================================
+-- Categorias
 INSERT INTO categorias (nombre, descripcion) VALUES
 ('viral', 'Enfermedades causadas por virus'),
-('cronica', 'Enfermedades de larga duración o recurrentes'),
-('alergia', 'Reacciones del sistema inmunológico a sustancias'),
-('bacteriana', 'Enfermedades causadas por bacterias');
+('cronica', 'Enfermedades de larga duracion'),
+('alergia', 'Reacciones alergicas'),
+('bacteriana', 'Enfermedades por bacterias');
 
--- ============================================
--- INSERTAR SÍNTOMAS
--- ============================================
-INSERT INTO sintomas (nombre, descripcion) VALUES
--- Síntomas generales
-('fiebre', 'Temperatura corporal elevada'),
-('tos', 'Expulsión brusca de aire de los pulmones'),
-('dolor_cabeza', 'Dolor o molestia en la cabeza'),
-('dolor_muscular', 'Dolor en los músculos del cuerpo'),
-('cansancio', 'Sensación de fatiga o agotamiento'),
-('estornudos', 'Expulsión súbita de aire por nariz y boca'),
-('dolor_garganta', 'Dolor o irritación en la garganta'),
+-- Sintomas
+INSERT INTO sintomas (nombre) VALUES
+('fiebre'), ('tos'), ('dolor_cabeza'), ('dolor_muscular'),
+('cansancio'), ('estornudos'), ('dolor_garganta'), ('sed'),
+('perdida_peso'), ('perdida_gusto_olfato'), ('erupcion'), ('picazon'),
+('nausea'), ('sensibilidad_luz'), ('ojos_lagrimosos'), ('aumento_peso'),
+('piel_seca'), ('vomito'), ('diarrea'), ('dolor_abdominal');
 
--- Síntomas específicos
-('sed', 'Sensación de necesidad de beber líquidos'),
-('perdida_peso', 'Disminución del peso corporal'),
-('perdida_gusto_olfato', 'Pérdida del sentido del gusto y/o olfato'),
-('erupcion', 'Aparición de manchas o lesiones en la piel'),
-('picazon', 'Sensación de comezón en la piel'),
-('nausea', 'Sensación de malestar estomacal'),
-('sensibilidad_luz', 'Molestia ante la exposición a la luz'),
-('ojos_lagrimosos', 'Lagrimeo excesivo de los ojos'),
-('aumento_peso', 'Incremento del peso corporal'),
-('piel_seca', 'Resequedad en la piel'),
-('vomito', 'Expulsión del contenido gástrico'),
-('diarrea', 'Evacuaciones líquidas frecuentes'),
-('dolor_abdominal', 'Dolor en la zona del abdomen');
+-- Enfermedades
+INSERT INTO enfermedades (nombre, id_categoria, recomendacion) VALUES
+('Gripe', 1, 'Descansar, mantenerse hidratado y consultar al medico si persiste'),
+('Resfriado', 1, 'Descansar y mantenerse hidratado'),
+('Diabetes', 2, 'Controlar la dieta y consultar a un especialista'),
+('COVID-19', 1, 'Aislamiento inmediato y consultar al medico'),
+('Varicela', 1, 'Descansar y evitar rascar las lesiones'),
+('Migrana', 2, 'Descansar en lugar oscuro y evitar la luz intensa'),
+('Alergia', 3, 'Evitar alergenos y tomar antihistaminicos'),
+('Hipotiroidismo', 2, 'Control medico regular y medicacion'),
+('Gastroenteritis', 1, 'Mantener hidratacion y dieta ligera'),
+('Faringitis', 4, 'Consultar al medico para tratamiento antibiotico');
 
--- ============================================
--- INSERTAR ENFERMEDADES
--- ============================================
-
--- Gripe (viral)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Gripe', id_categoria, 'Descansar, mantenerse hidratado y consultar al médico si los síntomas persisten'
-FROM categorias WHERE nombre = 'viral';
-
--- Resfriado (viral)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Resfriado', id_categoria, 'Descansar y mantenerse hidratado'
-FROM categorias WHERE nombre = 'viral';
-
--- Diabetes (crónica)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Diabetes', id_categoria, 'Controlar la dieta y consultar a un especialista'
-FROM categorias WHERE nombre = 'cronica';
-
--- COVID-19 (viral)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'COVID-19', id_categoria, 'Aislamiento inmediato y consultar al médico'
-FROM categorias WHERE nombre = 'viral';
-
--- Varicela (viral)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Varicela', id_categoria, 'Descansar y evitar rascar las lesiones'
-FROM categorias WHERE nombre = 'viral';
-
--- Migraña (crónica)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Migrana', id_categoria, 'Descansar en lugar oscuro y evitar la luz intensa'
-FROM categorias WHERE nombre = 'cronica';
-
--- Alergia (alergia)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Alergia', id_categoria, 'Evitar alérgenos conocidos y tomar antihistamínicos'
-FROM categorias WHERE nombre = 'alergia';
-
--- Hipotiroidismo (crónica)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Hipotiroidismo', id_categoria, 'Control médico regular y medicación según prescripción'
-FROM categorias WHERE nombre = 'cronica';
-
--- Gastroenteritis (viral)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Gastroenteritis', id_categoria, 'Mantener hidratación y seguir dieta ligera'
-FROM categorias WHERE nombre = 'viral';
-
--- Faringitis (bacteriana)
-INSERT INTO enfermedades (nombre, id_categoria, recomendacion)
-SELECT 'Faringitis', id_categoria, 'Consultar al médico para posible tratamiento antibiótico'
-FROM categorias WHERE nombre = 'bacteriana';
-
--- ============================================
--- RELACIONAR ENFERMEDADES CON SÍNTOMAS
--- ============================================
-
+-- Relacion enfermedad-sintomas
 -- Gripe: fiebre, tos, dolor_cabeza, dolor_muscular
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Gripe' AND s.nombre IN ('fiebre', 'tos', 'dolor_cabeza', 'dolor_muscular');
+INSERT INTO enfermedad_sintoma VALUES (1, 1), (1, 2), (1, 3), (1, 4);
 
 -- Resfriado: tos, estornudos, dolor_garganta
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Resfriado' AND s.nombre IN ('tos', 'estornudos', 'dolor_garganta');
+INSERT INTO enfermedad_sintoma VALUES (2, 2), (2, 6), (2, 7);
 
 -- Diabetes: sed, cansancio, perdida_peso
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Diabetes' AND s.nombre IN ('sed', 'cansancio', 'perdida_peso');
+INSERT INTO enfermedad_sintoma VALUES (3, 8), (3, 5), (3, 9);
 
 -- COVID-19: fiebre, tos, cansancio, perdida_gusto_olfato
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'COVID-19' AND s.nombre IN ('fiebre', 'tos', 'cansancio', 'perdida_gusto_olfato');
+INSERT INTO enfermedad_sintoma VALUES (4, 1), (4, 2), (4, 5), (4, 10);
 
 -- Varicela: fiebre, erupcion, picazon
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Varicela' AND s.nombre IN ('fiebre', 'erupcion', 'picazon');
+INSERT INTO enfermedad_sintoma VALUES (5, 1), (5, 11), (5, 12);
 
--- Migraña: dolor_cabeza, nausea, sensibilidad_luz
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Migrana' AND s.nombre IN ('dolor_cabeza', 'nausea', 'sensibilidad_luz');
+-- Migrana: dolor_cabeza, nausea, sensibilidad_luz
+INSERT INTO enfermedad_sintoma VALUES (6, 3), (6, 13), (6, 14);
 
 -- Alergia: estornudos, picazon, ojos_lagrimosos
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Alergia' AND s.nombre IN ('estornudos', 'picazon', 'ojos_lagrimosos');
+INSERT INTO enfermedad_sintoma VALUES (7, 6), (7, 12), (7, 15);
 
 -- Hipotiroidismo: cansancio, aumento_peso, piel_seca
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Hipotiroidismo' AND s.nombre IN ('cansancio', 'aumento_peso', 'piel_seca');
+INSERT INTO enfermedad_sintoma VALUES (8, 5), (8, 16), (8, 17);
 
 -- Gastroenteritis: vomito, diarrea, dolor_abdominal, fiebre
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Gastroenteritis' AND s.nombre IN ('vomito', 'diarrea', 'dolor_abdominal', 'fiebre');
+INSERT INTO enfermedad_sintoma VALUES (9, 18), (9, 19), (9, 20), (9, 1);
 
 -- Faringitis: dolor_garganta, fiebre, tos
-INSERT INTO enfermedad_sintoma (id_enfermedad, id_sintoma)
-SELECT e.id_enfermedad, s.id_sintoma
-FROM enfermedades e, sintomas s
-WHERE e.nombre = 'Faringitis' AND s.nombre IN ('dolor_garganta', 'fiebre', 'tos');
+INSERT INTO enfermedad_sintoma VALUES (10, 7), (10, 1), (10, 2);
 
--- ============================================
--- VERIFICAR DATOS INSERTADOS
--- ============================================
-SELECT '=== CATEGORÍAS ===' AS '';
-SELECT * FROM categorias;
-
-SELECT '=== SÍNTOMAS ===' AS '';
-SELECT * FROM sintomas;
-
-SELECT '=== ENFERMEDADES ===' AS '';
-SELECT e.nombre, c.nombre AS categoria, e.recomendacion 
-FROM enfermedades e 
-JOIN categorias c ON e.id_categoria = c.id_categoria;
-
-SELECT '=== ENFERMEDADES CON SUS SÍNTOMAS ===' AS '';
-SELECT * FROM vista_enfermedades_sintomas;
-
-SELECT 'Datos iniciales insertados exitosamente!' AS mensaje;
-
+-- Verificar datos
+SELECT * FROM v_enfermedades_completas;
