@@ -1,6 +1,6 @@
 # Arquitectura del Sistema - Diagrama Visual
 
-## 🏗️ Estructura General del Proyecto
+## Estructura General del Proyecto
 
 ```
 Proyecto_paradigmas/
@@ -12,7 +12,7 @@ Proyecto_paradigmas/
 │   ├── diagnostico.pl      ← Motor de inferencia Prolog
 │   └── test_diagnostico.pl ← Tests y carga de datos
 │
-├── java/                   ← ✨ NUEVA: Interfaz Visual
+├── java/                   ← NUEVA: Interfaz Visual
 │   ├── pom.xml             ← Configuración Maven
 │   ├── run.bat / run.sh    ← Scripts de ejecución
 │   ├── README.md           ← Documentación detallada
@@ -25,7 +25,7 @@ Proyecto_paradigmas/
 └── ARCHITECTURE.md         ← Documentación de arquitectura
 ```
 
-## 🔌 Flujo de Integración (Capas)
+## Flujo de Integración (Capas)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -71,7 +71,7 @@ Proyecto_paradigmas/
                     └────────────────────┘
 ```
 
-## 🎨 Interface de Usuario - Componentes
+## Interface de Usuario - Componentes
 
 ### MainWindow (JFrame Principal)
 
@@ -150,7 +150,7 @@ Proyecto_paradigmas/
 └─────────────────────────────────────────────────────────┘
 ```
 
-## 📊 Secuencia de Operación
+## Secuencia de Operación
 
 ```
 Usuario abre aplicación
@@ -199,7 +199,7 @@ DatabaseConnection.registrarDiagnostico()
 Confirmación guardada en BD
 ```
 
-## 🔗 Mapeo de Clases Java ↔ Base de Datos
+## Mapeo de Clases Java ↔ Base de Datos
 
 ```
 Enfermedad.java
@@ -219,7 +219,7 @@ Diagnostico.java
 └─ fecha             ←→ diagnosticos.fecha_diagnostico
 ```
 
-## ⚡ Predicados PrologEngine.java
+## Predicados PrologEngine.java
 
 | Método Java | Equivalente Prolog | Descripción |
 |---|---|---|
@@ -230,7 +230,7 @@ Diagnostico.java
 | `enfermedadesPorSintoma(String)` | `enfermedades_por_sintoma(Sint, Lista)` | Enfermedades con síntoma específico |
 | `coincideSintomas(List, List)` | `coincide_sintomas(SintUsr, SintEnf)` | Verifica si tiene TODOS los síntomas |
 
-## 🚀 Flujo de Ejecutación Paso a Paso
+## Flujo de Ejecutación Paso a Paso
 
 ```
 1. Usuario ejecuta: java -jar sistema-experto-medico-1.0.0.jar
@@ -271,7 +271,7 @@ Diagnostico.java
    └─ Mostrar confirmación
 ```
 
-## 📝 Archivos Generados
+## Archivos Generados
 
 ```
 java/
@@ -295,7 +295,7 @@ java/
 TOTAL: ~1300 líneas de código Java
 ```
 
-## 📈 Capacidades de Cada Componente
+## Capacidades de Cada Componente
 
 ### DatabaseConnection (170 líneas)
 - ✅ Conectar/desconectar MySQL
@@ -328,7 +328,7 @@ TOTAL: ~1300 líneas de código Java
 - ✅ Barra de estado
 - ✅ Panel de información
 
-## 🎯 Casos de Uso Cubiertos
+## Casos de Uso Cubiertos
 
 1. **Diagnóstico Simple** ✅
    - Usuario: síntomas → Sistema: enfermedades probables
@@ -348,3 +348,4 @@ TOTAL: ~1300 líneas de código Java
 ---
 
 **Última actualización:** 8 de Diciembre de 2025
+
