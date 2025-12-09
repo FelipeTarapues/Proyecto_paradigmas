@@ -1,0 +1,27 @@
+# Ignorar artefactos de compilación Java/Maven
+/java/target/
+**/target/
+*.jar
+*.war
+*.ear
+
+# Archivos de configuración del IDE
+.idea/
+*.iml
+
+# Archivos temporales
+.DS_Store
+thumbs.db
+
+# Entornos / credenciales
+.env
+*.properties
+
+# Clases y build intermediarios
+*.class
+
+# Logs
+*.log
+
+# Windows executables
+*.exe
