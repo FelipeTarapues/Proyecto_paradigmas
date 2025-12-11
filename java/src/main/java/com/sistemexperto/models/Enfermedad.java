@@ -2,9 +2,6 @@ package com.sistemexperto.models;
 
 import java.util.List;
 
-/**
- * Modelo de datos para una enfermedad
- */
 public class Enfermedad {
     private int idEnfermedad;
     private String nombre;
@@ -27,7 +24,6 @@ public class Enfermedad {
         this.recomendacion = recomendacion;
     }
 
-    // Getters y Setters
     public int getIdEnfermedad() {
         return idEnfermedad;
     }

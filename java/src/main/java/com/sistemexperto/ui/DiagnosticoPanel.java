@@ -8,9 +8,6 @@ import com.sistemexperto.db.DatabaseConnection;
 import com.sistemexperto.models.Enfermedad;
 import com.sistemexperto.prolog.PrologEngine;
 
-/**
- * Panel para realizar diagnósticos
- */
 public class DiagnosticoPanel extends JPanel {
     private DatabaseConnection dbConnection;
     private PrologEngine prologEngine;
@@ -41,9 +38,6 @@ public class DiagnosticoPanel extends JPanel {
         add(crearPanelResultados(), BorderLayout.SOUTH);
     }
 
-    /**
-     * Crea el panel con datos del paciente
-     */
     private JPanel crearPanelPaciente() {
         JPanel panel = new JPanel(new GridLayout(1, 4, 10, 0));
         panel.setBorder(BorderFactory.createTitledBorder("Datos del Paciente"));
@@ -59,9 +53,6 @@ public class DiagnosticoPanel extends JPanel {
         return panel;
     }
 
-    /**
-     * Crea el panel para seleccionar síntomas
-     */
     private JPanel crearPanelSintomas() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createTitledBorder("Selecciona Síntomas"));
@@ -109,9 +100,6 @@ public class DiagnosticoPanel extends JPanel {
         return panel;
     }
 
-    /**
-     * Crea el panel de resultados
-     */
     private JPanel crearPanelResultados() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createTitledBorder("Resultados del Diagnóstico"));
@@ -134,9 +122,6 @@ public class DiagnosticoPanel extends JPanel {
         return panel;
     }
 
-    /**
-     * Agrega un síntoma de la lista disponible a la seleccionada
-     */
     private void agregarSintoma() {
         int index = sintomasDisponiblesList.getSelectedIndex();
         if (index >= 0) {
@@ -146,9 +131,6 @@ public class DiagnosticoPanel extends JPanel {
         }
     }
 
-    /**
-     * Remueve un síntoma de la lista seleccionada
-     */
     private void removerSintoma() {
         int index = sintomasSeleccionadosList.getSelectedIndex();
         if (index >= 0) {
@@ -159,9 +141,6 @@ public class DiagnosticoPanel extends JPanel {
         }
     }
 
-    /**
-     * Realiza el diagnóstico basado en los síntomas seleccionados
-     */
     private void realizarDiagnostico() {
         // Validar datos
         if (nombrePacienteField.getText().trim().isEmpty()) {
@@ -211,9 +190,6 @@ public class DiagnosticoPanel extends JPanel {
         resultadoTextArea.setText(resultado.toString());
     }
 
-    /**
-     * Guarda el diagnóstico en la base de datos
-     */
     private void guardarDiagnostico() {
         if (resultadoTextArea.getText().equals("Selecciona síntomas y haz clic en 'OBTENER DIAGNÓSTICO'")) {
             JOptionPane.showMessageDialog(this, "Primero debes realizar un diagnóstico",
@@ -253,9 +229,6 @@ public class DiagnosticoPanel extends JPanel {
         }
     }
 
-    /**
-     * Actualiza los datos desde la base de datos
-     */
     public void actualizarDatos() {
         modeloDisponibles.clear();
         for (String sintoma : prologEngine.obtenerTodosSintomas()) {

@@ -7,9 +7,6 @@ import java.awt.event.WindowEvent;
 import com.sistemexperto.db.DatabaseConnection;
 import com.sistemexperto.prolog.PrologEngine;
 
-/**
- * Ventana principal de la aplicación
- */
 public class MainWindow extends JFrame {
     private DatabaseConnection dbConnection;
     private PrologEngine prologEngine;
@@ -45,9 +42,6 @@ public class MainWindow extends JFrame {
         cargarDatos();
     }
 
-    /**
-     * Crea la interfaz principal con tabs
-     */
     private void crearInterfaz() {
         JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -56,7 +50,7 @@ public class MainWindow extends JFrame {
         tabbedPane.addTab("Nuevo Diagnóstico", diagnosticoPanel);
 
         // Panel de historial
-        historialPanel = new HistorialPanel();
+        historialPanel = new HistorialPanel(dbConnection);
         tabbedPane.addTab("Historial", historialPanel);
 
         // Panel de información
@@ -66,17 +60,14 @@ public class MainWindow extends JFrame {
         add(tabbedPane, BorderLayout.CENTER);
 
         // Barra de estado
-        JLabel statusLabel = new JLabel("Iniciando conexión...");
+        JLabel statusLabel = new JLabel("Iniciando conexion...");
         add(statusLabel, BorderLayout.SOUTH);
     }
 
-    /**
-     * Carga los datos desde la base de datos
-     */
     private void cargarDatos() {
         if (dbConnection.conectar()) {
-            var enfermedades = dbConnection.obtenerEnfermedades();
-            var sintomas = dbConnection.obtenerSintomas();
+            java.util.List<com.sistemexperto.models.Enfermedad> enfermedades = dbConnection.obtenerEnfermedades();
+            java.util.List<String> sintomas = dbConnection.obtenerSintomas();
 
             prologEngine.cargarEnfermedades(enfermedades);
             prologEngine.cargarSintomas(sintomas);
@@ -84,26 +75,20 @@ public class MainWindow extends JFrame {
             diagnosticoPanel.actualizarDatos();
 
             JLabel statusLabel = (JLabel) getContentPane().getComponent(1);
-            statusLabel.setText("✓ Conectado - " + enfermedades.size() + " enfermedades, " + 
-                              sintomas.size() + " síntomas disponibles");
+            statusLabel.setText("Conectado - " + enfermedades.size() + " enfermedades, " + 
+                              sintomas.size() + " sintomas disponibles");
         } else {
             JOptionPane.showMessageDialog(this,
                     "Error: No se pudo conectar a la base de datos MySQL.\n" +
-                    "Asegúrate de que:\n" +
-                    "1. MySQL está ejecutándose\n" +
-                    "2. La base de datos 'sistema_experto_medico' existe\n" +
-                    "3. El usuario es 'root' sin contraseña",
-                    "Error de Conexión",
+                    "Asegurate de que MySQL esta ejecutandose y la BD existe.",
+                    "Error de Conexion",
                     JOptionPane.ERROR_MESSAGE);
 
             JLabel statusLabel = (JLabel) getContentPane().getComponent(1);
-            statusLabel.setText("✗ Error de conexión");
+            statusLabel.setText("Error de conexion");
         }
     }
 
-    /**
-     * Crea el panel de información
-     */
     private JPanel crearPanelInfo() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -114,23 +99,19 @@ public class MainWindow extends JFrame {
         textArea.setWrapStyleWord(true);
         textArea.setFont(new Font("Arial", Font.PLAIN, 12));
         textArea.setText(
-                "SISTEMA EXPERTO MÉDICO\n" +
+                "SISTEMA EXPERTO MEDICO\n" +
                 "=======================\n\n" +
-                "Este sistema utiliza un motor de inferencia basado en Prolog para\n" +
-                "diagnosticar enfermedades basándose en los síntomas ingresados.\n\n" +
-                "CARACTERÍSTICAS:\n" +
-                "- Selecciona tus síntomas de una lista predefinida\n" +
-                "- El sistema identifica posibles enfermedades\n" +
-                "- Proporciona recomendaciones médicas\n" +
-                "- Registra todos los diagnósticos en la base de datos\n\n" +
-                "TECNOLOGÍAS:\n" +
-                "- Base de datos: MySQL\n" +
-                "- Motor de inferencia: Prolog (SWI-Prolog)\n" +
-                "- Interfaz: Java Swing\n\n" +
-                "ADVERTENCIA:\n" +
-                "Este sistema es educativo. SIEMPRE consulta con un médico\n" +
-                "profesional para diagnósticos y tratamientos reales.\n\n" +
-                "Desarrollado para: Proyecto Paradigmas de Programación"
+                "Sistema de diagnostico medico usando Prolog y MySQL.\n\n" +
+                "CARACTERISTICAS:\n" +
+                "- Seleccionar sintomas\n" +
+                "- Diagnosticar enfermedades\n" +
+                "- Ver recomendaciones\n" +
+                "- Historial de diagnosticos\n\n" +
+                "TECNOLOGIAS:\n" +
+                "- MySQL\n" +
+                "- Prolog (SWI-Prolog)\n" +
+                "- Java Swing\n\n" +
+                "ADVERTENCIA: Sistema educativo. Consulta siempre con un medico profesional."
         );
 
         JScrollPane scrollPane = new JScrollPane(textArea);
@@ -141,8 +122,6 @@ public class MainWindow extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            UIManager.put("Button.font", new Font("Arial", Font.PLAIN, 11));
-            UIManager.put("Label.font", new Font("Arial", Font.PLAIN, 11));
             new MainWindow();
         });
     }
