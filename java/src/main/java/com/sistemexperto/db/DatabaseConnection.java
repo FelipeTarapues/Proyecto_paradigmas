@@ -15,13 +15,20 @@ public class DatabaseConnection {
 
     public boolean conectar() {
         try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error: Driver MySQL no encontrado. Verifica que mysql-connector-java este en el classpath.");
+            return false;
+        }
+        
+        try {
             String url = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE +
                     "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
             connection = DriverManager.getConnection(url, USER, PASSWORD);
             System.out.println("Conectado a MySQL correctamente");
             return true;
         } catch (SQLException e) {
-            System.err.println("✗ Error al conectar con MySQL: " + e.getMessage());
+            System.err.println("Error al conectar con MySQL: " + e.getMessage());
             return false;
         }
     }

@@ -53,10 +53,6 @@ public class MainWindow extends JFrame {
         historialPanel = new HistorialPanel(dbConnection);
         tabbedPane.addTab("Historial", historialPanel);
 
-        // Panel de información
-        JPanel infoPanel = crearPanelInfo();
-        tabbedPane.addTab("Información", infoPanel);
-
         add(tabbedPane, BorderLayout.CENTER);
 
         // Barra de estado
@@ -73,52 +69,29 @@ public class MainWindow extends JFrame {
             prologEngine.cargarSintomas(sintomas);
 
             diagnosticoPanel.actualizarDatos();
+            historialPanel.cargarHistorial();
 
             JLabel statusLabel = (JLabel) getContentPane().getComponent(1);
             statusLabel.setText("Conectado - " + enfermedades.size() + " enfermedades, " + 
                               sintomas.size() + " sintomas disponibles");
         } else {
-            JOptionPane.showMessageDialog(this,
-                    "Error: No se pudo conectar a la base de datos MySQL.\n" +
-                    "Asegurate de que MySQL esta ejecutandose y la BD existe.",
+            String mensaje = "Error: No se pudo conectar a la base de datos MySQL.\n\n" +
+                    "Verifica:\n" +
+                    "1. MySQL esta ejecutandose\n" +
+                    "2. La base de datos 'sistema_experto_medico' existe\n" +
+                    "3. Usuario: root\n" +
+                    "4. Contrasena correcta\n\n" +
+                    "Revisa la consola para mas detalles del error.";
+            
+            JOptionPane.showMessageDialog(this, mensaje,
                     "Error de Conexion",
                     JOptionPane.ERROR_MESSAGE);
 
             JLabel statusLabel = (JLabel) getContentPane().getComponent(1);
-            statusLabel.setText("Error de conexion");
+            statusLabel.setText("Error de conexion - Revisa la consola");
         }
     }
 
-    private JPanel crearPanelInfo() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        textArea.setLineWrap(true);
-        textArea.setWrapStyleWord(true);
-        textArea.setFont(new Font("Arial", Font.PLAIN, 12));
-        textArea.setText(
-                "SISTEMA EXPERTO MEDICO\n" +
-                "=======================\n\n" +
-                "Sistema de diagnostico medico usando Prolog y MySQL.\n\n" +
-                "CARACTERISTICAS:\n" +
-                "- Seleccionar sintomas\n" +
-                "- Diagnosticar enfermedades\n" +
-                "- Ver recomendaciones\n" +
-                "- Historial de diagnosticos\n\n" +
-                "TECNOLOGIAS:\n" +
-                "- MySQL\n" +
-                "- Prolog (SWI-Prolog)\n" +
-                "- Java Swing\n\n" +
-                "ADVERTENCIA: Sistema educativo. Consulta siempre con un medico profesional."
-        );
-
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        panel.add(scrollPane, BorderLayout.CENTER);
-
-        return panel;
-    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

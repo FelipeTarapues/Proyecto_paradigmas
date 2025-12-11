@@ -55,17 +55,12 @@ public class HistorialPanel extends JPanel {
         panelBotones.add(btnActualizar);
         panelBotones.add(btnExportar);
         add(panelBotones, BorderLayout.SOUTH);
-
-        // Cargar datos
-        cargarHistorial();
     }
 
     public void cargarHistorial() {
         modeloTabla.setRowCount(0);
         
         if (db == null || !db.isConnected()) {
-            JOptionPane.showMessageDialog(this, "No hay conexion a la base de datos",
-                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
