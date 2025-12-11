@@ -90,10 +90,6 @@ public class PrologEngine {
         return true;
     }
 
-    public List<Enfermedad> obtenerTodasEnfermedades() {
-        return new ArrayList<>(enfermedades);
-    }
-
     public List<String> obtenerTodosSintomas() {
         return new ArrayList<>(sintomas);
     }

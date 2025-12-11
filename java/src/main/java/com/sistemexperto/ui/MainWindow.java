@@ -42,21 +42,20 @@ public class MainWindow extends JFrame {
         cargarDatos();
     }
 
+    private JLabel statusLabel;
+
     private void crearInterfaz() {
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Panel de diagnóstico
         diagnosticoPanel = new DiagnosticoPanel(dbConnection, prologEngine);
         tabbedPane.addTab("Nuevo Diagnóstico", diagnosticoPanel);
 
-        // Panel de historial
         historialPanel = new HistorialPanel(dbConnection);
         tabbedPane.addTab("Historial", historialPanel);
 
         add(tabbedPane, BorderLayout.CENTER);
 
-        // Barra de estado
-        JLabel statusLabel = new JLabel("Iniciando conexion...");
+        statusLabel = new JLabel("Iniciando conexion...");
         add(statusLabel, BorderLayout.SOUTH);
     }
 
@@ -71,7 +70,6 @@ public class MainWindow extends JFrame {
             diagnosticoPanel.actualizarDatos();
             historialPanel.cargarHistorial();
 
-            JLabel statusLabel = (JLabel) getContentPane().getComponent(1);
             statusLabel.setText("Conectado - " + enfermedades.size() + " enfermedades, " + 
                               sintomas.size() + " sintomas disponibles");
         } else {
@@ -87,7 +85,6 @@ public class MainWindow extends JFrame {
                     "Error de Conexion",
                     JOptionPane.ERROR_MESSAGE);
 
-            JLabel statusLabel = (JLabel) getContentPane().getComponent(1);
             statusLabel.setText("Error de conexion - Revisa la consola");
         }
     }

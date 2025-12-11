@@ -5,11 +5,11 @@ import java.util.*;
 import com.sistemexperto.models.Enfermedad;
 
 public class DatabaseConnection {
-    private static final String HOST = System.getenv().getOrDefault("DB_HOST", "localhost");
-    private static final String PORT = System.getenv().getOrDefault("DB_PORT", "3306");
-    private static final String DATABASE = System.getenv().getOrDefault("DB_DATABASE", "sistema_experto_medico");
-    private static final String USER = System.getenv().getOrDefault("DB_USER", "root");
-    private static final String PASSWORD = System.getenv().getOrDefault("DB_PASSWORD", "Metallicaseekn04");
+    private static final String HOST = "localhost";
+    private static final String PORT = "3306";
+    private static final String DATABASE = "sistema_experto_medico";
+    private static final String USER = "root";
+    private static final String PASSWORD = "Metallicaseekn04";
 
     private Connection connection;
 
@@ -17,13 +17,12 @@ public class DatabaseConnection {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            System.err.println("Error: Driver MySQL no encontrado. Verifica que mysql-connector-java este en el classpath.");
+            System.err.println("Error: Driver MySQL no encontrado.");
             return false;
         }
         
         try {
-            String url = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE +
-                    "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+            String url = "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE;
             connection = DriverManager.getConnection(url, USER, PASSWORD);
             System.out.println("Conectado a MySQL correctamente");
             return true;
@@ -53,7 +52,7 @@ public class DatabaseConnection {
             }
             System.out.println("Se cargaron " + enfermedades.size() + " enfermedades");
         } catch (SQLException e) {
-            System.err.println("✗ Error al obtener enfermedades: " + e.getMessage());
+            System.err.println("Error al obtener enfermedades: " + e.getMessage());
         }
         return enfermedades;
     }
@@ -229,5 +228,103 @@ public class DatabaseConnection {
             System.err.println("Error al obtener historial: " + e.getMessage());
         }
         return historial;
+    }
+
+    public List<String[]> obtenerHistorialPaciente(String nombrePaciente) {
+        List<String[]> historial = new ArrayList<>();
+        String query = "SELECT p.nombre as paciente, p.edad, e.nombre as enfermedad, " +
+                "c.nombre as categoria, d.fecha_diagnostico, d.observaciones " +
+                "FROM diagnosticos d " +
+                "JOIN pacientes p ON d.id_paciente = p.id_paciente " +
+                "JOIN enfermedades e ON d.id_enfermedad = e.id_enfermedad " +
+                "JOIN categorias c ON e.id_categoria = c.id_categoria " +
+                "WHERE p.nombre = ? " +
+                "ORDER BY d.fecha_diagnostico DESC";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, nombrePaciente);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String[] fila = new String[6];
+                fila[0] = rs.getString("paciente");
+                fila[1] = String.valueOf(rs.getInt("edad"));
+                fila[2] = rs.getString("enfermedad");
+                fila[3] = rs.getString("categoria");
+                fila[4] = rs.getString("fecha_diagnostico");
+                fila[5] = rs.getString("observaciones") != null ? rs.getString("observaciones") : "";
+                historial.add(fila);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener historial del paciente: " + e.getMessage());
+        }
+        return historial;
+    }
+
+    public List<String[]> obtenerEstadisticas() {
+        List<String[]> estadisticas = new ArrayList<>();
+        String query = "SELECT enfermedad, total_diagnosticos FROM v_estadisticas";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                String[] fila = new String[2];
+                fila[0] = rs.getString("enfermedad");
+                fila[1] = String.valueOf(rs.getInt("total_diagnosticos"));
+                estadisticas.add(fila);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener estadísticas: " + e.getMessage());
+        }
+        return estadisticas;
+    }
+
+    public String obtenerResumenPaciente(String nombrePaciente) {
+        List<String[]> historial = obtenerHistorialPaciente(nombrePaciente);
+        if (historial.isEmpty()) {
+            return "No se encontraron diagnósticos para el paciente: " + nombrePaciente;
+        }
+
+        StringBuilder resumen = new StringBuilder();
+        resumen.append("=== RESUMEN DE DIAGNÓSTICOS ===\n");
+        resumen.append("Paciente: ").append(nombrePaciente).append("\n");
+        resumen.append("Edad: ").append(historial.get(0)[1]).append(" años\n\n");
+
+        resumen.append("ENFERMEDADES DIAGNOSTICADAS:\n");
+        resumen.append("============================\n\n");
+
+        for (String[] fila : historial) {
+            String enfermedad = fila[2];
+            String categoria = fila[3];
+            String fecha = fila[4];
+            String observaciones = fila[5];
+
+            resumen.append("• ").append(enfermedad).append(" (").append(categoria).append(")\n");
+            resumen.append("  Fecha: ").append(fecha).append("\n");
+            resumen.append("  Observaciones: ").append(observaciones).append("\n");
+
+            String recomendacion = obtenerRecomendacion(enfermedad);
+            if (recomendacion != null) {
+                resumen.append("  Recomendación: ").append(recomendacion).append("\n");
+            }
+            resumen.append("\n");
+        }
+
+        return resumen.toString();
+    }
+
+    private String obtenerRecomendacion(String nombreEnfermedad) {
+        String query = "SELECT recomendacion FROM enfermedades WHERE nombre = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, nombreEnfermedad);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("recomendacion");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener recomendación: " + e.getMessage());
+        }
+        return null;
     }
 }

@@ -2,7 +2,7 @@ package com.sistemexperto.ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 import com.sistemexperto.db.DatabaseConnection;
 import com.sistemexperto.models.Enfermedad;
@@ -14,7 +14,7 @@ public class DiagnosticoPanel extends JPanel {
 
     private JTextField nombrePacienteField;
     private JSpinner edadSpinner;
-    private JPanel sintomanasPanel;
+    private JComboBox<String> categoriaCombo;
     private JList<String> sintomasDisponiblesList;
     private JList<String> sintomasSeleccionadosList;
     private JTextArea resultadoTextArea;
@@ -39,16 +39,26 @@ public class DiagnosticoPanel extends JPanel {
     }
 
     private JPanel crearPanelPaciente() {
-        JPanel panel = new JPanel(new GridLayout(1, 4, 10, 0));
+        JPanel panel = new JPanel(new GridLayout(2, 3, 10, 5));
         panel.setBorder(BorderFactory.createTitledBorder("Datos del Paciente"));
 
+        // Fila 1
         panel.add(new JLabel("Nombre:"));
         nombrePacienteField = new JTextField();
         panel.add(nombrePacienteField);
+        panel.add(new JLabel("")); // Espacio vacío
 
+        // Fila 2
         panel.add(new JLabel("Edad:"));
         edadSpinner = new JSpinner(new SpinnerNumberModel(30, 1, 120, 1));
         panel.add(edadSpinner);
+        
+        JPanel filtroPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        filtroPanel.add(new JLabel("Filtrar por categoria:"));
+        categoriaCombo = new JComboBox<>();
+        categoriaCombo.addItem("Todas");
+        filtroPanel.add(categoriaCombo);
+        panel.add(filtroPanel);
 
         return panel;
     }
@@ -137,7 +147,6 @@ public class DiagnosticoPanel extends JPanel {
             String sintoma = modeloSeleccionados.getElementAt(index);
             modeloDisponibles.addElement(sintoma);
             modeloSeleccionados.remove(index);
-            Collections.sort(new ArrayList<>(Collections.list(modeloDisponibles.elements())));
         }
     }
 
@@ -161,15 +170,25 @@ public class DiagnosticoPanel extends JPanel {
             sintomasSeleccionados.add(modeloSeleccionados.getElementAt(i));
         }
 
-        // Llamar motor Prolog
-        List<Enfermedad> enfermedades = prologEngine.diagnostico(sintomasSeleccionados);
+        String categoriaSeleccionada = (String) categoriaCombo.getSelectedItem();
+        
+        List<Enfermedad> enfermedades;
+        if (categoriaSeleccionada == null || categoriaSeleccionada.equals("Todas")) {
+            enfermedades = prologEngine.diagnostico(sintomasSeleccionados);
+        } else {
+            enfermedades = prologEngine.diagnosticoCategoria(sintomasSeleccionados, categoriaSeleccionada);
+        }
 
         // Mostrar resultados
         StringBuilder resultado = new StringBuilder();
-        resultado.append("=== DIAGNÓSTICO ===\n");
+        resultado.append("=== DIAGNOSTICO ===\n");
         resultado.append("Paciente: ").append(nombrePacienteField.getText()).append("\n");
-        resultado.append("Edad: ").append(edadSpinner.getValue()).append(" años\n");
-        resultado.append("Síntomas: ").append(sintomasSeleccionados).append("\n\n");
+        resultado.append("Edad: ").append(edadSpinner.getValue()).append(" anos\n");
+        resultado.append("Sintomas: ").append(sintomasSeleccionados).append("\n");
+        if (categoriaSeleccionada != null && !categoriaSeleccionada.equals("Todas")) {
+            resultado.append("Categoria filtrada: ").append(categoriaSeleccionada).append("\n");
+        }
+        resultado.append("\n");
 
         if (enfermedades.isEmpty()) {
             resultado.append("No se encontraron enfermedades coincidentes.\n");
@@ -202,7 +221,20 @@ public class DiagnosticoPanel extends JPanel {
             sintomasSeleccionados.add(modeloSeleccionados.getElementAt(i));
         }
 
-        List<Enfermedad> enfermedades = prologEngine.diagnostico(sintomasSeleccionados);
+        if (sintomasSeleccionados.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay síntomas seleccionados",
+                    "Información", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String categoriaSeleccionada = (String) categoriaCombo.getSelectedItem();
+        List<Enfermedad> enfermedades;
+        if (categoriaSeleccionada == null || categoriaSeleccionada.equals("Todas")) {
+            enfermedades = prologEngine.diagnostico(sintomasSeleccionados);
+        } else {
+            enfermedades = prologEngine.diagnosticoCategoria(sintomasSeleccionados, categoriaSeleccionada);
+        }
+        
         if (enfermedades.isEmpty()) {
             JOptionPane.showMessageDialog(this, "No hay diagnósticos para guardar",
                     "Información", JOptionPane.INFORMATION_MESSAGE);
@@ -233,6 +265,14 @@ public class DiagnosticoPanel extends JPanel {
         modeloDisponibles.clear();
         for (String sintoma : prologEngine.obtenerTodosSintomas()) {
             modeloDisponibles.addElement(sintoma);
+        }
+        
+        if (dbConnection != null && dbConnection.isConnected()) {
+            categoriaCombo.removeAllItems();
+            categoriaCombo.addItem("Todas");
+            for (String categoria : dbConnection.obtenerCategorias()) {
+                categoriaCombo.addItem(categoria);
+            }
         }
     }
 }
