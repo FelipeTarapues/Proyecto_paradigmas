@@ -52,44 +52,6 @@ public class PrologEngine {
         return resultados;
     }
 
-    public List<Enfermedad> enfermedadesCronicas() {
-        List<Enfermedad> resultados = new ArrayList<>();
-        for (Enfermedad enf : enfermedades) {
-            if (enf.getCategoria().equalsIgnoreCase("cronica")) {
-                resultados.add(enf);
-            }
-        }
-        return resultados;
-    }
-
-    public List<Enfermedad> enfermedadesPorSintoma(String sintoma) {
-        List<Enfermedad> resultados = new ArrayList<>();
-        for (Enfermedad enf : enfermedades) {
-            if (enf.getSintomas().contains(sintoma)) {
-                resultados.add(enf);
-            }
-        }
-        return resultados;
-    }
-
-    public String recomendacion(String nombreEnfermedad) {
-        for (Enfermedad enf : enfermedades) {
-            if (enf.getNombre().equalsIgnoreCase(nombreEnfermedad)) {
-                return enf.getRecomendacion();
-            }
-        }
-        return "No se encontro recomendacion";
-    }
-
-    public boolean coincideSintomas(List<String> sintomasUsr, List<String> sintomasEnf) {
-        for (String sintoma : sintomasEnf) {
-            if (!sintomasUsr.contains(sintoma)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public List<String> obtenerTodosSintomas() {
         return new ArrayList<>(sintomas);
     }
